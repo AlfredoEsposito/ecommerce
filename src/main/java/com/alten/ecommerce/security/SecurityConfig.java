@@ -4,7 +4,9 @@ import com.alten.ecommerce.filter.AuthenticationFilter;
 import com.alten.ecommerce.filter.AuthorizationFilter;
 import com.alten.ecommerce.jwt.JwtConfig;
 import com.alten.ecommerce.service.jwtoken.JwTokenService;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -49,4 +51,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilter(authenticationFilter)
                 .addFilterBefore(new AuthorizationFilter(jwtConfig, jwTokenService), UsernamePasswordAuthenticationFilter.class);
     }
+
 }

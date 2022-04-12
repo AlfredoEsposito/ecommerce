@@ -5,6 +5,7 @@ import com.alten.ecommerce.service.jwtoken.JwTokenService;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -74,6 +76,18 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                         log.info("Token authenticated");
                         filterChain.doFilter(request, response);
 
+                    }catch (TokenExpiredException tokenExpiredException){
+                        //nel caso in cui il token sia scaduto, catturiamo l'eccezione,
+                        //lanciamo un messaggio di errore json e restituiamo l'errore come header
+                        log.error("Error! {}", tokenExpiredException.getMessage());
+                        jwTokenService.deleteToken(tokenJwt);
+                        response.setHeader("Error", tokenExpiredException.getMessage());
+                        response.setStatus(UNAUTHORIZED.value());
+                        Map<String, String> errors = new HashMap<>();
+                        errors.put("error_message", tokenExpiredException.getMessage());
+                        response.setContentType(APPLICATION_JSON_VALUE);
+                        new ObjectMapper().writeValue(response.getOutputStream(), errors);
+
                     }catch (Exception exception){
                         //nel caso in cui dovessero esserci problemi di qualsiasi tipo, catturiamo l'eccezione
                         //lanciamo un messaggio di errore json e restituiamo l'errore come header
@@ -92,7 +106,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                     response.setHeader("Error", "Unauthorized! Token unavailable or not found");
                     response.setStatus(UNAUTHORIZED.value());
                     Map<String, String> errors = new HashMap<>();
-                    errors.put("Error_message", "Unauthorized! Token unavailable or not found");
+                    errors.put("error_message", "Unauthorized! Token unavailable or not found");
                     response.setContentType(APPLICATION_JSON_VALUE);
                     new ObjectMapper().writeValue(response.getOutputStream(), errors);
                 }

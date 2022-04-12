@@ -36,6 +36,10 @@ public class Product {
     @Column(name = "published")
     private Timestamp publishedAt;
 
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
     public Product() {
     }
 
