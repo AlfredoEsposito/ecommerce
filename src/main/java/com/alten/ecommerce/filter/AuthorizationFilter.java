@@ -19,7 +19,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -77,7 +76,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                         filterChain.doFilter(request, response);
 
                     }catch (TokenExpiredException tokenExpiredException){
-                        //nel caso in cui il token sia scaduto, catturiamo l'eccezione,
+                        //nel caso in cui il token sia scaduto, eliminiamo il token, catturiamo l'eccezione,
                         //lanciamo un messaggio di errore json e restituiamo l'errore come header
                         log.error("Error! {}", tokenExpiredException.getMessage());
                         jwTokenService.deleteToken(tokenJwt);

@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "product")
@@ -34,16 +35,18 @@ public class Product {
     private Long quantityInStock;
 
     @Column(name = "published")
-    private Timestamp publishedAt;
+    private LocalDateTime publishedAt;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinTable(name = "user_products",
+               joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"),
+               inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
+    private Set<User> users;
 
     public Product() {
     }
 
-    public Product(String productName, Categories category, Double price, Double discount, Long quantityInStock, Timestamp publishedAt) {
+    public Product(String productName, Categories category, Double price, Double discount, Long quantityInStock, LocalDateTime publishedAt) {
         this.productName = productName;
         this.category = category;
         this.price = price;
@@ -100,12 +103,20 @@ public class Product {
         this.quantityInStock = quantityInStock;
     }
 
-    public Timestamp getPublishedAt() {
+    public LocalDateTime getPublishedAt() {
         return publishedAt;
     }
 
-    public void setPublishedAt(Timestamp publishedAt) {
+    public void setPublishedAt(LocalDateTime publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 
     @Override

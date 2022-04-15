@@ -36,17 +36,19 @@ public class User {
     @Column(name = "company")
     private String company;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "user_roles",
+               joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+               inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Set<Role> roles;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "user_products",
+               joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+               inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"))
     private Set<Product> products;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -55,7 +57,7 @@ public class User {
     public User() {
     }
 
-    public User(String firstName, String lastName, String username, String email, String password, Types type, String company, Set<Role> roles, Cart cart, Set<Product> products) {
+    public User(String firstName, String lastName, String username, String email, String password, Types type, String company) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
@@ -63,9 +65,6 @@ public class User {
         this.password = password;
         this.type = type;
         this.company = company;
-        this.roles = roles;
-        this.cart = cart;
-        this.products = products;
     }
 
     public Long getId() {
@@ -176,8 +175,6 @@ public class User {
                 ", type=" + type +
                 ", company='" + company + '\'' +
                 ", roles=" + roles +
-                ", cart=" + cart +
-                ", products=" + products +
                 '}';
     }
 }

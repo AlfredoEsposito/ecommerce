@@ -21,9 +21,9 @@ public class AppExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(CustomException customException){
         ErrorResponse errorResponse = new ErrorResponse(
-                NOT_FOUND.value(),
+                BAD_REQUEST.value(),
                 customException.getMessage(),
                 System.currentTimeMillis());
-        return new ResponseEntity<>(errorResponse, NOT_FOUND);
+        return new ResponseEntity<>(errorResponse, BAD_REQUEST);
     }
 }

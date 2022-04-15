@@ -51,8 +51,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User saveUser(User user) {
         log.info("Saving new user '{}' to database...", user.getUsername());
         if(checkUser(user)){
-            log.error("Error! Username '{} 'or email '{}' already in use", user.getUsername(), user.getEmail());
-            throw new CustomException("Error! Username '"+user.getUsername()+"' or email '"+user.getEmail()+"' already in use. Choose others");
+            log.error("Error! Username '{}', email '{}', or both already in use", user.getUsername(), user.getEmail());
+            throw new CustomException("Error! Username '"+user.getUsername()+"', email '"+user.getEmail()+"', or both already in use. Choose others");
         }
         user.setId(0L);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -69,8 +69,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if(optionalUser.isPresent()){
             user = optionalUser.get();
         }else{
-            log.error("Error! User doesn't exists: id '{}' not found in the database", id);
-            throw new CustomException("Error! User doesn't exists : id '"+id+"' not found in the database");
+            log.error("Error! User doesn't exist: id '{}' not found in the database", id);
+            throw new CustomException("Error! User doesn't exist : id '"+id+"' not found in the database");
         }
         return user;
     }
@@ -83,8 +83,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if(optionalUser.isPresent()){
             user = optionalUser.get();
         }else{
-            log.error("Error! User doesn't exists: username '{}' not found in the database", username);
-            throw new CustomException("Error! User doesn't exists: username '"+username+"' not found in the database");
+            log.error("Error! User doesn't exist: username '{}' not found in the database", username);
+            throw new CustomException("Error! User doesn't exist: username '"+username+"' not found in the database");
         }
         return user;
     }
@@ -97,8 +97,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if(optionalUser.isPresent()){
             user = optionalUser.get();
         }else{
-            log.error("Error! User doesn't exists: email '{}' not found in the database", email);
-            throw new CustomException("Error! User doesn't exists: email '"+email+"' not found in the database");
+            log.error("Error! User doesn't exist: email '{}' not found in the database", email);
+            throw new CustomException("Error! User doesn't exist: email '"+email+"' not found in the database");
         }
         return user;
     }
@@ -111,23 +111,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User updateUser(User user) {
-        log.info("Update user '{}' ...", user.getUsername());
-        if(checkUser(user)){
-            log.error("Error! Username or email already in use: choose others");
-            throw new CustomException("Error! Username or email already in use: choose others");
+        log.info("Updating user '{}'...", user.getUsername());
+        if(userRepository.findAll().stream().anyMatch(u -> u.equals(user))){
+            log.error("Error! User already exists: No changes have been made");
+            throw new CustomException("Error!User already exists: No changes have been made");
         }else{
+            log.info("User '{}' updated", user.getUsername());
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userRepository.saveAndFlush(user);
-            log.info("User updated successfully");
-            return user;
+            return userRepository.saveAndFlush(user);
         }
     }
 
     @Override
     public void deleteUserById(Long id) {
         log.info("Deleting user with id '{}'...", id);
-        userRepository.deleteById(id);
-        log.info("User '{}' deleted", id);
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(optionalUser.isPresent()){
+            userRepository.deleteById(id);
+            log.info("User with id '{}' deleted", id);
+        }else{
+            log.error("Error! User doesn't exist: id '{}' not found", id);
+            throw new CustomException("Error! User doesn't exist: id '"+id+"' not found");
+        }
     }
 
     @Override
@@ -140,8 +145,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             userRepository.delete(user);
             log.info("User with email '{}' deleted", email);
         }else{
-            log.error("Error! User doesn't exists: email '{}' not found in the database", email);
-            throw new CustomException("Error! User doesn't exists: email '"+email+"' not found in the database");
+            log.error("Error! User doesn't exist: email '{}' not found in the database", email);
+            throw new CustomException("Error! User doesn't exist: email '"+email+"' not found in the database");
         }
     }
 
@@ -171,7 +176,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username).get();
         if(user == null){
-            log.error("Error! User doesn't exists: username not found in the database");
+            log.error("Error! User doesn't exist: username not found in the database");
             throw new UsernameNotFoundException("Error! Username '"+user.getUsername()+"' not found int the database");
         }
         Set<GrantedAuthority> authorities = new HashSet<>();
