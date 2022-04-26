@@ -9,6 +9,7 @@ import com.alten.ecommerce.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -180,7 +181,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new UsernameNotFoundException("Error! Username '"+user.getUsername()+"' not found int the database");
         }
         Set<GrantedAuthority> authorities = new HashSet<>();
-        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_"+role.getRoleName().name())));
-        return  new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
+        user.getRoles().forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority("ROLE_"+role.getRoleName().name()));
+        });
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
+    }
+
+    //metodo che recupera l'utente loggato corrente
+    public User getCurrentUser(){
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return getUserByUsername(username);
     }
 }

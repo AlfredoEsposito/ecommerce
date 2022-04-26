@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transaction")
@@ -30,7 +31,7 @@ public class Transaction {
     private Status status;
 
     @Column(name = "executed")
-    private Timestamp executedAt;
+    private LocalDateTime executedAt;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH},
               mappedBy = "transaction")
@@ -39,7 +40,7 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(String code, PaymentMethods paymentMethods, Status status, Timestamp executedAt) {
+    public Transaction(String code, PaymentMethods paymentMethods, Status status, LocalDateTime executedAt) {
         this.code = code;
         this.paymentMethods = paymentMethods;
         this.status = status;
@@ -78,11 +79,11 @@ public class Transaction {
         this.status = status;
     }
 
-    public Timestamp getExecutedAt() {
+    public LocalDateTime getExecutedAt() {
         return executedAt;
     }
 
-    public void setExecutedAt(Timestamp executedAt) {
+    public void setExecutedAt(LocalDateTime executedAt) {
         this.executedAt = executedAt;
     }
 

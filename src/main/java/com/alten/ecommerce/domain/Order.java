@@ -8,6 +8,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "order")
@@ -33,7 +34,7 @@ public class Order {
     private Double total = totalOrder();
 
     @Column(name = "ordered")
-    private Timestamp orderedAt;
+    private LocalDateTime orderedAt;
 
     @Column(name = "shipping_date")
     private Date shippingDate;
@@ -49,7 +50,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(String shippingAddress, Double shippingCosts, Status status, Double total, Timestamp orderedAt, Date shippingDate) {
+    public Order(String shippingAddress, Double shippingCosts, Status status, Double total, LocalDateTime orderedAt, Date shippingDate) {
         this.shippingAddress = shippingAddress;
         this.shippingCosts = shippingCosts;
         this.status = status;
@@ -98,11 +99,11 @@ public class Order {
         this.total = total;
     }
 
-    public Timestamp getOrderedAt() {
+    public LocalDateTime getOrderedAt() {
         return orderedAt;
     }
 
-    public void setOrderedAt(Timestamp orderedAt) {
+    public void setOrderedAt(LocalDateTime orderedAt) {
         this.orderedAt = orderedAt;
     }
 

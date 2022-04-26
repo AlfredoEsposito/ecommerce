@@ -13,7 +13,7 @@ import java.util.Set;
 @RequestMapping("/api")
 public class UserRestController {
 
-    private UserService userService;
+    private final UserService userService;
 
     @Autowired
     public UserRestController(UserService userService) {

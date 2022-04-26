@@ -2,6 +2,7 @@ package com.alten.ecommerce.domain;
 
 import com.alten.ecommerce.enums.Categories;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
@@ -36,6 +37,13 @@ public class Product {
 
     @Column(name = "published")
     private LocalDateTime publishedAt;
+
+    @JsonIgnore
+    @ManyToMany(fetch =  FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinTable(name = "cart_products",
+               joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"),
+               inverseJoinColumns = @JoinColumn(name = "cart_id", referencedColumnName = "id"))
+    private Set<Cart> cart;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(name = "user_products",
@@ -109,6 +117,14 @@ public class Product {
 
     public void setPublishedAt(LocalDateTime publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    public Set<Cart> getCart() {
+        return cart;
+    }
+
+    public void setCart(Set<Cart> cart) {
+        this.cart = cart;
     }
 
     public Set<User> getUsers() {
