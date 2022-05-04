@@ -1,13 +1,13 @@
 package com.alten.ecommerce.domain;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "cart")
@@ -20,21 +20,25 @@ public class Cart {
     private Long id;
 
     @Column(name = "total_amount")
-    private Double totalAmount = this.getTotalAmount();
+    private Double totalAmount;
 
     @Column(name = "total_items")
     private Long totalItems;
 
-    @JsonIgnoreProperties({"firstName", "lastName", "username", "email", "password", "type", "company", "roles", "products", "orders"})
+    @JsonIgnoreProperties({"firstName", "lastName", "email", "password", "type", "company", "roles", "products", "orders"})
     @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "cart_products",
                joinColumns = @JoinColumn(name = "cart_id", referencedColumnName = "id"),
                inverseJoinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"))
     private Set<Product> products;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "cart")
+    private Set<CartItems> cartItems;
 
     public Cart() {
     }
@@ -53,15 +57,8 @@ public class Cart {
         this.id = id;
     }
 
-
-    public Double getTotalAmount(){
-        Double total=0.0;
-        if(products!=null){
-            for(Product product : this.products){
-                total = total + (product.getPrice()-product.getDiscount());
-            }
-        }
-        return total;
+    public Double getTotalAmount() {
+        return totalAmount;
     }
 
     public void setTotalAmount(Double totalAmount) {
@@ -92,13 +89,27 @@ public class Cart {
         this.products = products;
     }
 
+    public Set<CartItems> getCartItems() {
+        return cartItems;
+    }
 
+    public void setCartItems(Set<CartItems> cartItems) {
+        this.cartItems = cartItems;
+    }
 
     public void addProduct(Product product){
         if(products == null){
             products = new HashSet<>();
         }
         products.add(product);
+    }
+
+    public void addCartItem(CartItems cartItem){
+        if(cartItems == null){
+            cartItems = new HashSet<>();
+        }
+        cartItems.add(cartItem);
+        cartItem.setCart(this);
     }
 
     @Override

@@ -6,6 +6,6 @@ import com.alten.ecommerce.domain.Product;
 public interface CartService {
 
     Cart addProductToCart(Long productId, Long cartId);
-    Cart deleteProductFromCart(Long productId);
-    void deleteCart(Long cartId);
+    Cart deleteProductFromCart(Long productId, Long cartId);
+    void deleteCartById(Long cartId);
 }

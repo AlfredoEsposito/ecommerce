@@ -3,10 +3,12 @@ package com.alten.ecommerce.domain;
 import com.alten.ecommerce.enums.Categories;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -39,17 +41,22 @@ public class Product {
     private LocalDateTime publishedAt;
 
     @JsonIgnore
-    @ManyToMany(fetch =  FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
+    @ManyToMany(fetch =  FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "cart_products",
                joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"),
                inverseJoinColumns = @JoinColumn(name = "cart_id", referencedColumnName = "id"))
     private Set<Cart> cart;
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(name = "user_products",
                joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"),
                inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     private Set<User> users;
+
+    @JsonIgnoreProperties({"id", "cart", "product"})
+    @OneToMany(mappedBy = "product")
+    private Set<CartItems> cartItems;
 
     public Product() {
     }
@@ -133,6 +140,30 @@ public class Product {
 
     public void setUsers(Set<User> users) {
         this.users = users;
+    }
+
+    public Set<CartItems> getCartItems() {
+        return cartItems;
+    }
+
+    public void setCartItems(Set<CartItems> cartItems) {
+        this.cartItems = cartItems;
+    }
+
+    //utility method: set the user seller to the product (M:M relationship)
+    public void addUser(User user){
+        if(users == null){
+            users = new HashSet<>();
+        }
+        users.add(user);
+    }
+
+    public void addCartItem(CartItems cartItem){
+        if(cartItems == null){
+            cartItems = new HashSet<>();
+        }
+        cartItems.add(cartItem);
+        cartItem.setProduct(this);
     }
 
     @Override

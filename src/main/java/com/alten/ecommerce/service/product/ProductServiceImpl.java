@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,6 +76,7 @@ public class ProductServiceImpl implements ProductService{
         }
         product.setId(0L);
         product.setPublishedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        product.addUser(userService.getCurrentUser());
         productRepository.save(product);
         log.info("Product '{}' saved to database", product.getProductName());
         return product;
@@ -111,25 +111,25 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Set<Product> getProductsByUser(String username) {
+    public List<Product> getProductsByUser(String username) {
         log.info("Getting all {}'s products...",username);
         User user = userService.getUserByUsername(username.trim());
         return productRepository.findProductsByUsers(user).get();
     }
 
     @Override
-    public Set<Product> getProducts() {
+    public List<Product> getProducts() {
         log.info("Getting all products...");
-        return productRepository.findAll().stream().collect(Collectors.toSet());
+        return productRepository.findAll();
     }
 
     @Override
-    public Set<Product> getProductsByCategory(String category) {
+    public List<Product> getProductsByCategory(String category) {
         log.info("Getting all '{}' products", category);
         List<Product> products = productRepository.findAll();
         return products.stream().filter(product -> (
                 product.getCategory().name().equalsIgnoreCase(String.valueOf(Categories.valueOf(category.trim())))
-                )).collect(Collectors.toSet());
+                )).collect(Collectors.toList());
     }
 
     @Override

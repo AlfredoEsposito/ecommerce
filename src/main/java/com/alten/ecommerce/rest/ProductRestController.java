@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -40,19 +41,19 @@ public class ProductRestController {
 
     @GetMapping("/products/user/{username}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_CUSTOMER','ROLE_SELLER')")
-    public ResponseEntity<Set<Product>> getProductsByUser(@PathVariable String username){
+    public ResponseEntity<List<Product>> getProductsByUser(@PathVariable String username){
         return ResponseEntity.ok().body(productService.getProductsByUser(username));
     }
 
     @GetMapping("/products/category/{category}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_CUSTOMER','ROLE_SELLER')")
-    public ResponseEntity<Set<Product>> getProductsByCategory(@PathVariable String category){
+    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable String category){
         return ResponseEntity.ok().body(productService.getProductsByCategory(category));
     }
 
     @GetMapping("/products")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_CUSTOMER','ROLE_SELLER')")
-    public ResponseEntity<Set<Product>> getAllProducts(){
+    public ResponseEntity<List<Product>> getAllProducts(){
         return ResponseEntity.ok().body(productService.getProducts());
     }
 

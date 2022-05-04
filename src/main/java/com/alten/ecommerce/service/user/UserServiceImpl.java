@@ -105,9 +105,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Set<User> getUsers() {
+    public List<User> getUsers() {
         log.info("Getting all users...");
-        return userRepository.findAll().stream().collect(Collectors.toSet());
+        return userRepository.findAll();
     }
 
     @Override
@@ -188,6 +188,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     //metodo che recupera l'utente loggato corrente
+    @Override
     public User getCurrentUser(){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return getUserByUsername(username);
