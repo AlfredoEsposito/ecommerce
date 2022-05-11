@@ -1,10 +1,9 @@
 package com.alten.ecommerce.domain;
 
 import com.alten.ecommerce.enums.Categories;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,6 +12,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "product")
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "id")
 public class Product {
 
@@ -21,6 +21,7 @@ public class Product {
     @Column(name = "id")
     private Long id;
 
+    @JsonProperty("product name")
     @Column(name = "product_name", unique = true)
     private String productName;
 
@@ -34,9 +35,11 @@ public class Product {
     @Column(name = "discount")
     private Double discount;
 
+    @JsonProperty("quantity in stock")
     @Column(name = "quantity_in_stock")
     private Long quantityInStock;
 
+    @JsonProperty("published at")
     @Column(name = "published")
     private LocalDateTime publishedAt;
 
@@ -48,12 +51,20 @@ public class Product {
     private Set<Cart> cart;
 
     @JsonIgnore
+    @ManyToMany(fetch =  FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "order_products",
+            joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "order_id", referencedColumnName = "id"))
+    private Set<Order> orders;
+
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(name = "user_products",
                joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id"),
                inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     private Set<User> users;
 
+    @JsonProperty("cart items")
     @JsonIgnoreProperties({"id", "cart", "product"})
     @OneToMany(mappedBy = "product")
     private Set<CartItems> cartItems;
@@ -132,6 +143,14 @@ public class Product {
 
     public void setCart(Set<Cart> cart) {
         this.cart = cart;
+    }
+
+    public Set<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Set<Order> orders) {
+        this.orders = orders;
     }
 
     public Set<User> getUsers() {

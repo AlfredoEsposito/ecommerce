@@ -1,6 +1,7 @@
 package com.alten.ecommerce.domain;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
@@ -26,6 +27,7 @@ public class CartItems {
     @Column(name = "quantity")
     private Long quantity;
 
+    @JsonProperty("total per product")
     @Column(name = "total_per_product")
     private Double totalPerProduct;
 
@@ -85,6 +87,7 @@ public class CartItems {
                 ", cart=" + cart +
                 ", product=" + product +
                 ", quantity=" + quantity +
+                ", totalPerProduct=" + totalPerProduct +
                 '}';
     }
 }

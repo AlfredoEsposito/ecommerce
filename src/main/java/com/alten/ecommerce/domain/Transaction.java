@@ -3,6 +3,7 @@ package com.alten.ecommerce.domain;
 import com.alten.ecommerce.enums.PaymentMethods;
 import com.alten.ecommerce.enums.Status;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
@@ -22,6 +23,7 @@ public class Transaction {
     @Column(name = "code")
     private String code;
 
+    @JsonProperty("payment method")
     @Column(name = "payment_method")
     @Enumerated(value = EnumType.STRING)
     private PaymentMethods paymentMethods;
@@ -30,6 +32,7 @@ public class Transaction {
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
+    @JsonProperty("extecuted at")
     @Column(name = "executed")
     private LocalDateTime executedAt;
 

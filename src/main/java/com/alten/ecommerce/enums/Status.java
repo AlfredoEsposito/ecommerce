@@ -2,5 +2,5 @@ package com.alten.ecommerce.enums;
 
 public enum Status {
 
-    Canceled, Declined, Delivered, Failed, Paid, Pending, Returned, Shipped, Success;
+    CANCELED, DECLINED, DELIVERED, FAILED, PAID, PENDING, RETURNED, SHIPPED, SUCCESS;
 }

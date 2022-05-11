@@ -1,6 +1,7 @@
 package com.alten.ecommerce.domain;
 
 import com.alten.ecommerce.enums.Roles;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 
@@ -13,6 +14,7 @@ public class Role {
     @Column(name = "id")
     private Long id;
 
+    @JsonProperty("role name")
     @Column(name = "role_name", unique = true)
     @Enumerated(value = EnumType.STRING)
     private Roles roleName;

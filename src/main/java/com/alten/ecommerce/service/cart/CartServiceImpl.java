@@ -18,8 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Service
 @Transactional
@@ -44,7 +43,7 @@ public class CartServiceImpl implements CartService {
         log.info("Adding product to cart...");
         Optional<Cart> optionalCart = cartRepository.findById(cartId);
         Cart cart = new Cart();
-        CartItems items = cartItemsService.getItemsByProductId(productId);
+        CartItems cartItem = cartItemsService.getItemsByProductId(productId);
         User user = userService.getCurrentUser();
         List<Cart> carts = cartRepository.findAll();
 
@@ -69,14 +68,14 @@ public class CartServiceImpl implements CartService {
         }else{
             cart.addProduct(product); //aggiungo il prodotto
             cart.setTotalItems(cart.getTotalItems()+1); //aggiorno il numero totale degli articoli del carrello
-            items.setCart(cart); //setto il carrello il prodotto all'oggetto di tipo CartItems
-            items.setProduct(product); //setto il prodotto il prodotto all'oggetto di tipo CartItems
-            items.setQuantity(items.getQuantity()+1); //aggiorno il numero degli articoli divisi per prodotto nel carrello
-            items.setTotalPerProduct((product.getPrice()-product.getDiscount())* items.getQuantity()); //calcolo la cifra totale per ogni prodotto presente nel carrello
-            product.addCartItem(items);
-            cart.addCartItem(items);
+            cartItem.setCart(cart); //setto il carrello il prodotto all'oggetto di tipo CartItems
+            cartItem.setProduct(product); //setto il prodotto il prodotto all'oggetto di tipo CartItems
+            cartItem.setQuantity(cartItem.getQuantity()+1); //aggiorno il numero degli articoli divisi per prodotto nel carrello
+            cartItem.setTotalPerProduct((product.getPrice()-product.getDiscount())* cartItem.getQuantity()); //calcolo la cifra totale per ogni prodotto presente nel carrello
+            product.addCartItem(cartItem);
+            cart.addCartItem(cartItem);
             cart.setTotalAmount(cart.getCartItems().stream().mapToDouble(CartItems::getTotalPerProduct).sum()); //calcolo la cifra totale degli articoli presenti nel carrello
-            cartItemsService.saveCartItems(items); //salvo il carrello
+            cartItemsService.saveCartItems(cartItem); //salvo il carrello
             log.info("Product '{}' added to cart", product.getProductName());
         }
         return cart;
@@ -130,12 +129,18 @@ public class CartServiceImpl implements CartService {
     @Override
     public void deleteCartById(Long cartId) {
         log.info("Deleting cart '{}'...", cartId);
-        if(cartRepository.findById(cartId).isEmpty()){
+        Optional<Cart> optionalCart = cartRepository.findById(cartId);
+        Cart cart;
+        if(optionalCart.isPresent()){
+            cart = optionalCart.get();
+            cartItemsService.deleteCartItemsByCartId(cart.getId());
+            cart.setCartItems(null);
+            cartRepository.deleteAllByIdInBatch(Collections.singleton(cart.getId()));
+            log.info("Cart '{}' deleted", cartId);
+        }else{
             log.error("Error! Cart doesn't exist: id '{}' not found", cartId);
             throw new CustomException("Error! Cart doesn't exist: id '"+cartId+"' not found");
-        }else{
-            cartRepository.deleteAllByIdInBatch(Collections.singleton(cartId));
-            log.info("Cart '{}' deleted", cartId);
         }
     }
+
 }

@@ -1,9 +1,6 @@
 package com.alten.ecommerce.domain;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -19,9 +16,11 @@ public class Cart {
     @Column(name = "id")
     private Long id;
 
+    @JsonProperty("total amount")
     @Column(name = "total_amount")
     private Double totalAmount;
 
+    @JsonProperty("total items")
     @Column(name = "total_items")
     private Long totalItems;
 
@@ -30,6 +29,7 @@ public class Cart {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @JsonProperty("cart products")
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "cart_products",
                joinColumns = @JoinColumn(name = "cart_id", referencedColumnName = "id"),
